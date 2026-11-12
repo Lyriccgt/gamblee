@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Monster Jackpot</title>
+<style>
+:root{--bg:#090711;--panel:#151122;--purple:#9b5cff;--pink:#ff4fc8;--text:#f7f2ff;--muted:#a99dbb;--green:#54f0a2;--gold:#ffd66b}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#211039,#0b0813 55%,#07060b);color:var(--text);font-family:Arial,sans-serif;min-height:100vh}
+button{font:inherit;cursor:pointer;border:0}
+.topbar{position:sticky;top:0;z-index:1000;background:#0c0914f5;backdrop-filter:blur(16px);box-shadow:0 8px 24px #0006}header{display:flex;align-items:center;justify-content:space-between;padding:14px 5%;border-bottom:1px solid #ffffff13;background:#0c0914f2;position:relative}nav{display:flex;gap:8px;justify-content:center;padding:10px 14px;flex-wrap:wrap;background:#100c1af5;border-bottom:1px solid #ffffff18}
+.logo{font-size:23px;font-weight:1000}.logo span{color:var(--pink)}
+.balance{background:#211932;border:1px solid #69449b;border-radius:12px;padding:10px 15px;font-weight:900;color:var(--gold)}
+nav{display:flex;gap:8px;justify-content:center;padding:10px 14px;flex-wrap:wrap;background:#100c1af5}
+nav button,.secondary{background:#211a30;color:#cfc3e4;padding:11px 17px;border-radius:10px;font-weight:800}
+nav button.active,nav button:hover{background:linear-gradient(120deg,#8b43ed,#d14acb);color:white}
+main{max-width:1200px;margin:auto;padding:28px 22px 70px}
+.page{display:none}.page.active{display:block}
+h1{font-size:34px;margin:0 0 8px}h2{margin:0 0 15px}
+.sub{color:var(--muted);margin-bottom:25px}
+.panel{background:linear-gradient(145deg,#1b1529,#110e1b);border:1px solid #ffffff14;border-radius:18px;padding:22px;box-shadow:0 15px 45px #0004}
+.hero{padding:35px;background:linear-gradient(115deg,#32165a,#19112b 60%,#41164c);border:1px solid #a85bff55;border-radius:22px;margin-bottom:22px}
+.hero h1{font-size:42px}.hero p{color:#d4c2eb;max-width:650px;line-height:1.6}
+.primary{background:linear-gradient(110deg,#974bff,#e14bc4);color:white;padding:12px 19px;border-radius:11px;font-weight:900;box-shadow:0 5px 20px #a34aff33}
+.primary:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.danger{background:#6f263e;color:white;padding:11px 17px;border-radius:10px;font-weight:900}
+.green{background:#176b49;color:#fff;padding:11px 17px;border-radius:10px;font-weight:900}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:17px}
+.pack{background:linear-gradient(145deg,#211936,#110e1c);border:1px solid #ffffff19;border-radius:17px;padding:18px;text-align:center;transition:.2s}
+.pack:hover{transform:translateY(-4px);border-color:#a85cff}
+.qty-row{display:flex;align-items:center;justify-content:center;gap:10px;margin:12px 0}.qty-row button{width:34px;height:34px;border-radius:9px;background:#392653;color:#fff;font-size:20px;font-weight:900}.qty-row input{width:58px;text-align:center;background:#100b19;color:white;border:1px solid #684a8c;border-radius:8px;padding:8px;font-weight:900}.inventory-list{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}.inventory-chip{cursor:pointer;background:#251a38;border:1px solid #7652a0;padding:12px;border-radius:12px;display:flex;align-items:center;gap:12px}.inventory-chip button{padding:8px 11px;border-radius:8px;background:#8d4be0;color:#fff;font-weight:900;font-size:11px}.booster{--pack-a:#e53d31;--pack-b:#6b1222;position:relative;width:155px;height:225px;margin:8px auto 15px;border:3px solid #f6d66e;border-radius:13px;overflow:hidden;background:linear-gradient(115deg,var(--pack-a),var(--pack-b) 48%,var(--pack-a));box-shadow:inset 0 0 0 2px #ffffff70,0 12px 28px #0009;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:13px 7px;color:white;text-align:center}.booster:before,.booster:after{content:"";position:absolute;left:0;width:100%;height:13px;background:repeating-linear-gradient(90deg,#f8d66b 0 3px,#7a5a36 3px 5px);z-index:2}.booster:before{top:0}.booster:after{bottom:0}.booster-logo{font-size:12px;font-weight:1000;letter-spacing:1px;text-shadow:1px 2px 3px #000}.booster-set{font-size:9px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;text-shadow:1px 2px 3px #000}.booster-mon{height:128px;width:100%;object-fit:contain;filter:drop-shadow(0 5px 4px #0009);position:relative;z-index:1}.booster-fallback{font-size:70px;line-height:1.4}.booster-count{font-size:8px;font-weight:900;letter-spacing:1px;text-shadow:1px 2px 3px #000}.booster.gold{--pack-a:#e4a52c;--pack-b:#6b3210}.booster.blue{--pack-a:#2586dc;--pack-b:#102c73}.booster.green{--pack-a:#269f70;--pack-b:#0c4b42}.booster.purple{--pack-a:#9d4ee7;--pack-b:#3d145f}.booster.black{--pack-a:#4d4d61;--pack-b:#090914}.booster-preview{width:205px;height:295px;cursor:pointer;touch-action:pan-y;user-select:none;transition:transform .18s,filter .18s}.booster-preview.dragging{filter:brightness(1.25);transform:rotate(5deg) scale(1.04)}.booster-preview.torn{animation:tearPack .45s forwards}@keyframes tearPack{to{transform:translateX(180px) rotate(35deg);opacity:0}}.swipe-track{width:min(420px,95%);margin:15px auto 0;padding:13px;border:1px solid #8e5bc3;border-radius:40px;background:#1b122b;color:#e9d9ff;font-weight:900;text-align:center}.swipe-track span{display:inline-block;margin-right:9px;color:#ffd66b;font-size:22px;vertical-align:middle}.pack .booster{width:132px;height:190px;margin:0 auto 14px}.pack .booster-mon{height:105px}.pack .booster-logo{font-size:10px}.pack .booster-set{font-size:8px}.pack .booster-count{font-size:7px}.pack .booster-fallback{font-size:55px}.pokemon-note{font-size:11px;color:#9f91b4;margin-top:8px}
+.pokemon-art{height:145px;margin:8px 0;border:3px solid #8a754c;border-radius:7px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,#fff,#c9d6e8);overflow:hidden}.pokemon-art img{width:100%;height:100%;object-fit:contain}.pokemon-note{font-size:11px;color:#9f91b4;margin-top:8px}.pack-art{height:135px;border-radius:13px;display:grid;place-items:center;font-size:65px;margin-bottom:14px;background:radial-gradient(circle,#6841a4,#25163c 65%,#151020);border:1px solid #ffffff20}
+.pack h3{margin:5px}.pack p{color:var(--muted);font-size:13px;min-height:32px}
+.price{color:var(--gold);font-weight:1000;margin:12px}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:18px}
+.monster-card{position:relative;min-height:300px;border-radius:17px;padding:8px;background:linear-gradient(145deg,#d6b66c,#fff0b1 25%,#98733b 55%,#f6d88c);color:#1d1724;box-shadow:0 8px 22px #0007;transition:.2s;overflow:hidden}
+.monster-card:hover{transform:translateY(-5px) rotate(-1deg)}
+.monster-card:before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 25%,#ffffff66 45%,transparent 60%);transform:translateX(-120%);animation:shine 5s infinite;pointer-events:none}
+@keyframes shine{0%,65%{transform:translateX(-120%)}85%,100%{transform:translateX(120%)}}
+.monster-card .inner{height:100%;min-height:284px;border:2px solid #6d552b;border-radius:11px;padding:9px;background:linear-gradient(160deg,#f7e9c7,#d9c9a3);position:relative}
+.card-top{display:flex;justify-content:space-between;font-weight:1000;font-size:12px}
+.card-name{font-size:17px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-art{height:145px;margin:8px 0;border:3px solid #8a754c;border-radius:7px;display:grid;place-items:center;font-size:76px;background:radial-gradient(circle at 50% 35%,#fff5c9,#b7a0cc 55%,#655178);position:relative;overflow:hidden}
+.card-art:after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,#fff8 50%,transparent 68%);transform:translateX(-120%);animation:shine 4s infinite}
+.card-type{font-size:9px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#57466a}
+.card-description{font-size:10px;line-height:1.3;min-height:27px;margin:5px 0}
+.card-stats{display:flex;justify-content:space-between;font-size:10px;font-weight:900;border-top:1px solid #9b8b6b;padding-top:6px}
+.card-value{text-align:center;font-weight:1000;font-size:12px;margin-top:6px}
+.rarity-Common{background:linear-gradient(145deg,#aab4c2,#f1f4f7,#8794a6)}
+.rarity-Uncommon{background:linear-gradient(145deg,#54b987,#d6ffe7,#23865b)}
+.rarity-Rare{background:linear-gradient(145deg,#438ee8,#d8edff,#4162b4)}
+.rarity-Epic{background:linear-gradient(145deg,#a64ce5,#f4d9ff,#7025a8)}
+.rarity-Legendary{background:linear-gradient(145deg,#ffad35,#fff1a8,#d36b12)}
+.rarity-SECRET{background:linear-gradient(145deg,#ff4fd8,#fff,#8b4dff,#54e9ff);animation:secretGlow 2s infinite alternate}
+@keyframes secretGlow{to{filter:hue-rotate(35deg) brightness(1.15)}}
+.card-actions{display:flex;gap:7px;margin-top:8px}
+.card-actions button{flex:1;padding:8px 5px;border-radius:8px;font-size:11px;font-weight:900;background:#292038;color:white}
+.card-actions .sell{background:#176b49}
+.open-area{margin-top:25px}
+.open-controls{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;margin:18px 0}
+.open-stage{min-height:360px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;padding:22px;background:#0c0914;border:1px solid #ffffff13;border-radius:18px}
+.reveal-card{width:190px;opacity:0;transform:translateY(25px) scale(.8);animation:reveal .45s forwards}
+@keyframes reveal{to{opacity:1;transform:translateY(0) scale(1)}}
+.hidden-card{width:190px;height:290px;border-radius:16px;border:3px solid #b76aff;background:repeating-linear-gradient(45deg,#291344,#291344 10px,#3a1b59 10px,#3a1b59 20px);display:grid;place-items:center;font-size:65px;cursor:pointer}
+.hidden-card span{border:2px solid #d9aaff;border-radius:50%;padding:17px}
+.notice{color:var(--muted);font-size:13px;text-align:center}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:13px;margin:20px 0}
+.stat{background:#1b1528;border:1px solid #ffffff13;border-radius:14px;padding:17px}
+.stat strong{display:block;font-size:23px;color:var(--gold);margin-top:5px}
+.stat span{font-size:12px;color:var(--muted)}
+.collection-tools{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+.collection-tools input,.collection-tools select{padding:11px;background:#211a30;color:white;border:1px solid #594373;border-radius:9px;min-width:180px}
+.plinko-wrap{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:18px}
+#plinkoCanvas{width:100%;height:auto;background:radial-gradient(ellipse at center,#201536,#0b0812);border-radius:13px;display:block}
+.plinko-side{display:flex;flex-direction:column;gap:13px}
+.plinko-side label{color:var(--muted);font-size:13px}
+.plinko-side select,.plinko-side input{width:100%;padding:11px;background:#211a30;color:white;border:1px solid #574071;border-radius:9px;margin-top:6px}
+.slots{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-top:7px}
+.slots span{text-align:center;padding:8px 1px;background:#292039;border-radius:6px;font-size:11px;font-weight:900;color:#e4d5ff}
+.result{font-weight:900;text-align:center;color:var(--gold);min-height:24px}
+.history{display:flex;gap:7px;flex-wrap:wrap}
+.history span{background:#261d38;padding:7px 10px;border-radius:8px;font-size:12px}
+.admin-box{border:1px solid #9b5cff66;background:linear-gradient(145deg,#25153b,#130e20);border-radius:15px;padding:20px;margin-top:18px}
+.admin-box input{width:180px;margin-right:8px}
+.admin-status{font-size:13px;color:var(--muted);margin-top:12px}
+footer{text-align:center;color:#756a83;padding:30px;font-size:12px}
+@media(max-width:750px){.booster-preview{width:180px;height:260px}.inventory-chip{width:100%;justify-content:space-between}header{padding:14px 4%}.logo{font-size:18px}.plinko-wrap{grid-template-columns:1fr}.hero h1{font-size:32px}.reveal-card{width:155px}.card-art{height:125px}}
+</style>
+</head>
+<body>
+<div class="topbar">
+<header>
+ <div class="logo">MONSTER <span>JACKPOT</span></div>
+ <div class="balance">💰 <span id="balance">$2,000</span></div>
+</header>
+<nav>
+ <button class="active" data-page="home">Home</button>
+ <button data-page="packs">Pack Shop</button>
+ <button data-page="openpacks">Open Packs</button>
+ <button data-page="collection">Collection</button>
+ <button data-page="plinko">Plinko</button>
+ <button data-page="casino">Casino</button>
+ <button data-page="profile">Profile</button>
+</nav>
+</div>
+<main>
+<section class="page active" id="home">
+ <div class="hero">
+  <h1>Open packs. Find legends. Get rich.</h1>
+  <p>Collect rare monsters, discover secret cards, and build the ultimate collection. Every pack has a chance to contain something incredible.</p>
+  <button class="primary" onclick="showPage('packs')">OPEN SOME PACKS →</button>
+ </div>
+ <div class="stats">
+  <div class="stat"><span>YOUR BALANCE</span><strong id="homeBalance">$2,000</strong></div>
+  <div class="stat"><span>CARDS COLLECTED</span><strong id="homeCards">0</strong></div>
+  <div class="stat"><span>PACKS OPENED</span><strong id="homePacks">0</strong></div>
+  <div class="stat"><span>PLAYER LEVEL</span><strong id="homeLevel">1</strong></div>
+ </div>
+ <div class="panel">
+  <h2>🎁 Daily demo bonus</h2>
+  <p class="sub">A small $2 boost to help you get started.</p>
+  <button class="green" onclick="claimBonus()">Claim $2 bonus</button>
+  <p class="notice" id="bonusMessage"></p>
+ </div>
+</section>
+
+<section class="page" id="packs">
+ <h1>Pokémon Booster Shop</h1><p class="sub">Buy fictional booster packs with randomly scaled prices. Older and rarer sets can cost much more, and card values scale with the pack you open. Your purchased packs are stored in Open Packs.</p>
+ <h2>Buy Booster Packs</h2><p class="notice" id="packCatalogStatus">Loading the full Pokémon TCG set catalogue…</p><div class="collection-tools"><input id="packSearch" placeholder="Search any Pokémon set or pack…" oninput="renderPacks()"></div><div class="grid" id="packGrid"></div>
+  <p class="pokemon-note">Pokémon card images and names are from the Pokémon Trading Card Game. Fan-made project, not affiliated with or endorsed by Nintendo, Creatures, GAME FREAK, or The Pokémon Company.</p>
+</section>
+
+<section class="page" id="openpacks">
+ <h1>Open Your Packs</h1>
+ <p class="sub">Packs you buy in the shop appear here. Click a pack to open it, then reveal your five cards.</p>
+ <div class="panel"><h2>🎒 Your Pack Stash</h2><p class="sub" id="stashSummary">You have no unopened packs yet.</p><div class="inventory-list" id="packInventory"></div><p class="notice" id="stashMessage">Buy packs in the Pack Shop to fill your stash.</p></div>
+ <div class="open-area panel" id="openingPanel"><h2 id="openingTitle">Ready to open a pack?</h2><p class="sub" id="openingSubtitle">Choose a pack from your stash, then click the pack to open it.</p><div class="open-stage" id="openStage"><p class="notice">Your selected booster pack will appear here.</p></div><div class="open-controls" id="openControls"></div><p class="notice" id="openMessage">After opening, click each card or use Reveal Next.</p></div>
+</section>
+
+<section class="page" id="collection">
+ <h1>Your Collection</h1>
+ <p class="sub">Keep your favourites or sell cards for coins.</p>
+ <div class="stats">
+  <div class="stat"><span>TOTAL CARDS</span><strong id="collectionCount">0</strong></div>
+  <div class="stat"><span>COLLECTION VALUE</span><strong id="collectionValue">$0</strong></div>
+  <div class="stat"><span>FAVOURITES</span><strong id="favouriteCount">0</strong></div>
+ </div>
+ <div class="collection-tools">
+  <input id="cardSearch" placeholder="Search monsters..." oninput="renderCollection()">
+  <select id="rarityFilter" onchange="renderCollection()">
+   <option value="All">All rarities</option><option>Common</option><option>Uncommon</option><option>Rare</option><option>Epic</option><option>Legendary</option><option>Mythic</option><option>SECRET</option>
+  </select>
+  <button class="green" onclick="sellAll()">💰 Sell All Unfavorited</button>
+ </div>
+ <div class="card-grid" id="collectionGrid"></div>
+</section>
+
+<section class="page" id="plinko">
+ <h1>Plinko</h1>
+ <p class="sub">Drop a glowing ball through the pegs and watch it bounce toward a payout slot.</p>
+ <div class="plinko-wrap">
+  <div class="panel">
+   <canvas id="plinkoCanvas" width="720" height="610"></canvas>
+   <div class="slots" id="slotLabels"></div>
+   <p class="result" id="plinkoResult">Choose your bet and drop a ball.</p>
+   <div class="history" id="plinkoHistory"></div>
+  </div>
+  <div class="panel plinko-side">
+   <div><label>Bet amount</label><input id="plinkoBet" type="number" min="1" value="100"></div>
+   <div><label>Risk level</label><select id="plinkoRisk" onchange="updatePlinkoLabels()"><option value="low">Low risk</option><option value="medium" selected>Medium risk</option><option value="high">High risk</option></select></div>
+   <div><label>Rows</label><select id="plinkoRows" onchange="buildPlinko()"><option value="10">10 rows</option><option value="12" selected>12 rows</option><option value="14">14 rows</option></select></div>
+   <button class="primary" id="dropButton" onclick="dropBall()">DROP BALL</button>
+   <p class="notice">The central slots are statistically more likely. Big edge multipliers are rare.</p>
+   <div class="stat"><span>LAST MULTIPLIER</span><strong id="lastMultiplier">—</strong></div>
+   <div class="stat"><span>LAST PAYOUT</span><strong id="lastPayout">$0</strong></div>
+  </div>
+ </div>
+</section>
+
+<section class="page" id="casino">
+ <h1>Casino</h1><p class="sub">Try your luck with fictional coins.</p>
+ <div class="grid">
+  <div class="panel">
+   <h2>🪙 Coin Flip</h2><p class="sub">Pick heads or tails. Win 1.9× your bet (5% house edge).</p>
+   <input id="coinBet" type="number" value="100" min="1" style="width:100%;padding:11px;background:#211a30;color:white;border:1px solid #594373;border-radius:9px">
+   <select id="coinChoice" style="width:100%;margin-top:8px;padding:11px;background:#211a30;color:white;border:1px solid #594373;border-radius:9px"><option>Heads</option><option>Tails</option></select>
+   <button class="primary" style="margin-top:12px" onclick="coinFlip()">FLIP</button><p id="coinResult" class="result"></p>
+  </div>
+  <div class="panel">
+   <h2>🎲 Dice Roll</h2><p class="sub">Roll a 6 to win 5× your bet.</p>
+   <input id="diceBet" type="number" value="100" min="1" style="width:100%;padding:11px;background:#211a30;color:white;border:1px solid #594373;border-radius:9px">
+   <button class="primary" style="margin-top:12px" onclick="diceRoll()">ROLL DICE</button><p id="diceResult" class="result"></p>
+  </div>
+  <div class="panel">
+   <h2>🍀 Lucky Number</h2><p class="sub">Choose a number from 1–10. Hit it to win 8×.</p>
+   <input id="luckyBet" type="number" value="100" min="1" style="width:100%;padding:11px;background:#211a30;color:white;border:1px solid #594373;border-radius:9px">
+   <input id="luckyNumber" type="number" value="7" min="1" max="10" style="width:100%;margin-top:8px;padding:11px;background:#211a30;color:white;border:1px solid #594373;border-radius:9px">
+   <button class="primary" style="margin-top:12px" onclick="luckyRoll()">TRY YOUR LUCK</button><p id="luckyResult" class="result"></p>
+  </div>
+ </div>
+</section>
+
+<section class="page" id="profile">
+ <h1>Your Profile</h1><p class="sub">Your Monster Jackpot progress.</p>
+ <div class="stats">
+  <div class="stat"><span>LEVEL</span><strong id="profileLevel">1</strong></div>
+  <div class="stat"><span>XP</span><strong id="profileXP">0</strong></div>
+  <div class="stat"><span>PACKS OPENED</span><strong id="profilePacks">0</strong></div>
+  <div class="stat"><span>SECRET CARDS</span><strong id="profileSecrets">0</strong></div>
+ </div>
+ <div class="panel">
+  <h2>Progress</h2>
+  <div style="height:13px;background:#090711;border-radius:20px;overflow:hidden"><div id="xpBar" style="height:100%;width:0;background:linear-gradient(90deg,#974bff,#ff4fc8)"></div></div>
+  <p id="xpText" class="sub" style="margin:10px 0 0"></p>
+  <button class="green" onclick="claimBonus()">Claim $2 demo bonus</button>
+  <button class="danger" onclick="resetGame()" style="margin-left:8px">Reset game</button>
+ </div>
+ <div class="admin-box">
+  <h2>🔐 Admin Access</h2>
+  <p class="sub">Use the admin codes to unlock special game modes.</p>
+  <input id="adminPassword" type="password" placeholder="Admin code">
+  <button class="primary" onclick="unlockAdmin()">UNLOCK</button>
+  <div class="admin-status" id="adminStatus">Admin modes are locked.</div>
+ </div>
+</section>
+</main>
+<footer>MONSTER JACKPOT · Fictional coins only · Progress saves in this browser</footer>
+<script>
+const $=id=>document.getElementById(id);
+const money=n=>new Intl.NumberFormat("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2}).format(Number(n)||0);
+// Every pack gets a stable, randomized game-price tier from hundreds
+// all the way into the quadrillions. These prices intentionally ignore
+// real-world prices and stay consistent after refreshing.
+function packPriceTier(key){
+ let h=2166136261;
+ for(let i=0;i<String(key).length;i++)h=(Math.imul(h^String(key).charCodeAt(i),16777619)>>>0);
+ h >>>= 0;
+ const exponent=2+(h%14); // 10^2 through 10^15
+ const mantissas=[1,2,5];
+ const mantissa=mantissas[(h>>>8)%mantissas.length];
+ return mantissa*Math.pow(10,exponent);
+}
+function scaledPackPrice(base,key){return packPriceTier(key);}
+
+const legacyPacks=[
+ {name:"Scarlet & Violet Booster",price:12.64,icon:"🔴",desc:"Randomized game price · CAD"},
+ {name:"Obsidian Flames Booster",price:17.95,icon:"🔥",desc:"Randomized game price · CAD"},
+ {name:"Crown Zenith Booster",price:18.50,icon:"👑",desc:"Randomized game price · CAD"},
+ {name:"Evolving Skies Booster",price:55.00,icon:"🐉",desc:"Randomized game price · CAD"},
+ {name:"Base Set Unlimited Booster",price:958.05,icon:"⭐",desc:"Randomized game price · CAD"},
+ {name:"Base Set 1st Edition Booster",price:9107.00,icon:"🏆",desc:"Randomized game price · CAD"},
+ {name:"Jungle Unlimited Booster",price:610.20,icon:"🌴",desc:"Randomized game price · CAD"},
+ {name:"Fossil Unlimited Booster",price:475.00,icon:"🦴",desc:"Randomized game price · CAD"},
+ {name:"Team Rocket Unlimited Booster",price:460.00,icon:"🚀",desc:"Randomized game price · CAD"},
+ {name:"Gym Heroes Unlimited Booster",price:650.00,icon:"🥋",desc:"Randomized game price · CAD"},
+ {name:"Neo Genesis Unlimited Booster",price:885.00,icon:"🌌",desc:"Randomized game price · CAD"}
+];
+let packs=legacyPacks.map(p=>({...p,basePrice:p.price,price:scaledPackPrice(p.price,p.name)}));
+let tcgSets=[];
+let tcgReady=false;
+const tcgSetCache={};
+const monsters=[
+ ["Pidgey","🐦","Common","Flying","A small bird Pokémon.",40,25,"base1/57"],["Rattata","🐀","Common","Normal","A quick and scrappy Pokémon.",40,28,"base1/61"],["Caterpie","🐛","Common","Bug","It crawls through forests eating leaves.",45,24,"base1/45"],["Weedle","🐝","Common","Bug","A tiny bug Pokémon with a poisonous barb.",40,26,"base1/69"],["Sandshrew","🦔","Common","Ground","It curls into a ball to protect itself.",50,35,"base1/62"],
+ ["Pikachu","⚡","Uncommon","Electric","Stores electricity in its cheeks.",60,80,"base1/58"],["Charmander","🔥","Uncommon","Fire","The flame on its tail shows its life force.",60,90,"base1/46"],["Squirtle","🐢","Uncommon","Water","Withdraws into its shell when threatened.",60,85,"base1/63"],["Bulbasaur","🌱","Uncommon","Grass","A seed grows on its back from birth.",60,90,"base1/44"],
+ ["Magikarp","🐟","Rare","Water","A weak swimmer with surprising potential.",30,250,"base1/35"],["Growlithe","🐕","Rare","Fire","A loyal Pokémon with a brave heart.",70,300,"base1/28"],["Haunter","👻","Rare","Ghost","It lurks in darkness and startles passersby.",60,350,"base1/29"],["Electabuzz","⚡","Rare","Electric","A powerful Pokémon that loves electricity.",70,400,"base1/20"],
+ ["Alakazam","🔮","Epic","Psychic","Its intelligence is said to be extraordinary.",80,1200,"base1/1"],["Gyarados","🐉","Epic","Water","A ferocious Pokémon known for its rampages.",100,1500,"base1/6"],["Mewtwo","🧬","Epic","Psychic","A legendary Pokémon created by science.",100,1800,"base1/10"],
+ ["Dragonair","🐲","Legendary","Dragon","A mystical Pokémon with a graceful aura.",90,12000,"base1/18"],["Zapdos","⚡","Legendary","Electric","One of the legendary birds.",100,16000,"base1/16"],
+ ["Blastoise","💧","Mythic","Water","A powerful Pokémon with water cannons.",120,50000,"base1/2"],["Venusaur","🌺","Mythic","Grass","The flower on its back absorbs solar energy.",120,50000,"base1/15"],["Charizard","🔥","Mythic","Fire","A mighty flame-breathing Pokémon.",120,50000,"base1/4"],["Machamp","🥊","Legendary","Fighting","A four-armed Pokémon with incredible strength.",130,16000,"base1/8"],
+ ["Shining Charizard","🔥","SECRET","Fire","A rare shining Pokémon card from the Neo era.",120,150,"neo4/107"]
+];
+
+// Approximate English booster distribution for the simplified five-card game.
+// Four regular slots are mostly commons/uncommons; the final slot is the rare/hit slot.
+const regularSlotWeights=[{name:"Common",weight:70},{name:"Uncommon",weight:25},{name:"Rare",weight:4.7},{name:"Epic",weight:0.28},{name:"Legendary",weight:0.019},{name:"Mythic",weight:0.001}];
+const hitSlotWeights=[{name:"Rare",weight:74},{name:"Epic",weight:18},{name:"Legendary",weight:6},{name:"Mythic",weight:1.5},{name:"SECRET",weight:0.5}];
+
+let state=loadState();
+let pendingCards=[],revealIndex=0,currentPack=null;
+let selectedPackEntry=null,selectedPackIndex=null,swipeStartX=null,openingPackBusy=false;
+let plinkoBusy=false;
+function packKey(pack){return pack.setId?`set:${pack.setId}`:`name:${pack.name}`;}
+function remapPackInventory(previousPacks=[]){
+ for(const entry of (state.packInventory||[])){
+  let key=entry.packKey;
+  let snapshot=entry.packSnapshot;
+  if(!key){
+   const previous=previousPacks[Number(entry.packIndex)];
+   if(previous){key=packKey(previous);snapshot={...previous};entry.packKey=key;entry.packSnapshot=snapshot;}
+  }
+  if(!key)continue;
+  let index=packs.findIndex(p=>packKey(p)===key);
+  if(index<0&&snapshot){packs.push({...snapshot});index=packs.length-1;}
+  if(index>=0)entry.packIndex=index;
+ }
+}
+
+function loadState(){
+ try{
+  const s=JSON.parse(localStorage.getItem("monsterJackpotV4"));
+  if(s&&Array.isArray(s.cards)){
+   const loaded={...{balance:2000,cards:[],packsOpened:0,xp:0,bonusClaimed:false,infiniteMoney:false,guaranteedMythic:false,packInventory:[]},...s,packInventory:Array.isArray(s.packInventory)?s.packInventory:[]};
+   // Upgrade an untouched save from the old $20 starting balance.
+   if(loaded.balance===20&&loaded.cards.length===0&&loaded.packsOpened===0)loaded.balance=2000;
+   return loaded;
+  }
+ }catch(e){}
+ return {balance:2000,cards:[],packsOpened:0,xp:0,bonusClaimed:false,infiniteMoney:false,guaranteedMythic:false,packInventory:[]};
+}
+function save(){localStorage.setItem("monsterJackpotV4",JSON.stringify(state));updateUI()}
+function displayBalance(){return state.infiniteMoney?"∞ INFINITE":money(state.balance)}
+function updateUI(){
+ $("balance").textContent=displayBalance();
+ $("homeBalance").textContent=displayBalance();
+ $("homeCards").textContent=state.cards.length;
+ $("homePacks").textContent=state.packsOpened;
+ const level=Math.floor(state.xp/100)+1,progress=state.xp%100;
+ $("homeLevel").textContent=level;
+ $("profileLevel").textContent=level;
+ $("profileXP").textContent=state.xp;
+ $("profilePacks").textContent=state.packsOpened;
+ $("profileSecrets").textContent=state.cards.filter(c=>c.rarity==="SECRET").length;
+ $("xpBar").style.width=progress+"%";
+ $("xpText").textContent=progress+" / 100 XP to level "+(level+1);
+ $("collectionCount").textContent=state.cards.length;
+ $("collectionValue").textContent=money(state.cards.reduce((a,c)=>a+c.value,0));
+ $("favouriteCount").textContent=state.cards.filter(c=>c.favorite).length;
+ const adminModes=[];
+ if(state.infiniteMoney)adminModes.push("Infinite money");
+ if(state.guaranteedMythic)adminModes.push("Guaranteed Mythic packs");
+ $("adminStatus").textContent=adminModes.length?"✅ ACTIVE: "+adminModes.join(" + "):"Admin modes are locked.";
+}
+function showPage(page){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
+ $(page).classList.add("active");
+ if(page==="collection")renderCollection();
+ if(page==="plinko")drawPlinko();
+}
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+
+const packColors=["red","blue","green","purple","gold","black"];
+const packPokemon=["base1/4","base1/2","base1/15","base1/6","base1/10","base1/16","base1/18","base1/1","base1/8","base1/4"];
+const packFallbacks=["🔥","💧","🌺","🐉","🧬","⚡"];
+function packArtwork(index,extraClass=""){
+ const p=packs[index],img=p.art||`https://images.pokemontcg.io/${packPokemon[index%packPokemon.length]}.png`,color=packColors[index%packColors.length];
+ return `<div class="booster ${color} ${extraClass}"><div class="booster-logo">POKÉMON</div><div class="booster-set">${p.name.replace(/\s*Pack/i,"")}</div><img class="booster-mon" src="${img}" alt="" onerror="this.outerHTML='<div class=\'booster-fallback\'>${packFallbacks[index%packFallbacks.length]}</div>'"><div class="booster-count">5 GAME CARDS · BOOSTER PACK</div></div>`;
+}
+function renderPacks(){
+ const search=($("packSearch")?.value||"").trim().toLowerCase();
+ const catalog=tcgReady?packs.map((p,i)=>({p,i})).filter(x=>x.p.setId):packs.map((p,i)=>({p,i}));
+ const filtered=catalog.filter(({p})=>!search||p.name.toLowerCase().includes(search)||String(p.series||"").toLowerCase().includes(search)).sort((a,b)=>a.p.price-b.p.price||a.p.name.localeCompare(b.p.name));
+ $("packGrid").innerHTML=filtered.length?filtered.map(({p,i})=>`<div class="pack">${packArtwork(i)}<h3>${p.name}</h3><p>${p.desc||`${p.series||"Pokémon TCG"} · ${p.cardCount||"?"} cards in the set`}</p><div class="price">${money(p.price)} each</div><button class="primary" onclick="purchasePack(${i})">BUY 1 PACK</button></div>`).join(""):`<p class="notice">No packs match that search.</p>`;
+ renderPackInventory();
+}
+function changePackQty(i,d){const el=$("qty"+i);el.value=Math.max(1,Math.min(99,(Number(el.value)||1)+d));}
+function purchasePack(i){
+ const pack=packs[i],qty=1,total=pack.price;
+ if(!state.infiniteMoney&&state.balance<total){alert("Not enough coins for that many packs.");return;}
+ if(!state.infiniteMoney)state.balance-=total;
+ for(let n=0;n<qty;n++)state.packInventory.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2),packIndex:i,packKey:packKey(pack),packSnapshot:{...pack}});
+ save();renderPackInventory();$("stashMessage").textContent=`Added ${qty} ${pack.name}${qty===1?"":"s"} to your stash.`;showPage("openpacks");
+}
+function renderPackInventory(){
+ const inv=state.packInventory||[],counts={};inv.forEach(x=>counts[x.packIndex]=(counts[x.packIndex]||0)+1);
+ $("stashSummary").textContent=`${inv.length} unopened pack${inv.length===1?"":"s"} in your stash.`;
+ $("packInventory").innerHTML=Object.keys(counts).length?Object.entries(counts).sort((a,b)=>packs[Number(a[0])].price-packs[Number(b[0])].price).map(([i,n])=>`<div class="inventory-chip" role="button" tabindex="0" onclick="selectStashPack(${Number(i)})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectStashPack(${Number(i)})}"><span>${packs[Number(i)].name} × ${n}</span><button type="button" onclick="event.stopPropagation();selectStashPack(${Number(i)})">OPEN PACK</button></div>`).join(""): `<span class="notice">Your stash is empty. Visit the Pack Shop to buy some.</span>`;
+}
+function selectStashPack(index){
+ const entry=state.packInventory.find(x=>x.packIndex===index);if(!entry){alert("You don't have that pack anymore.");return;}
+ selectedPackEntry=entry;selectedPackIndex=index;pendingCards=[];currentPack=null;revealIndex=0;
+ $("openingTitle").textContent=packs[index].name+" ready!";
+ $("openingSubtitle").textContent="Click the booster pack itself to open it.";
+ $("openStage").innerHTML=`<div style="text-align:center"><div id="clickPack" class="booster booster-preview ${packColors[index%packColors.length]}" role="button" tabindex="0" aria-label="Click to open ${packs[index].name}" onclick="tearOpenPack()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();tearOpenPack()}"><div class="booster-logo">POKÉMON</div><div class="booster-set">${packs[index].name}</div><img class="booster-mon" src="${packs[index].art||`https://images.pokemontcg.io/${packPokemon[index%packPokemon.length]}.png`}" alt="Booster artwork" onerror="this.outerHTML='<div class=\'booster-fallback\'>${packFallbacks[index%packFallbacks.length]}</div>'"><div class="booster-count">5 GAME CARDS · BOOSTER PACK</div></div><p class="notice">👆 CLICK THE PACK TO OPEN</p></div>`;
+ $("openControls").innerHTML=`<button class="secondary" onclick="cancelPackSelection()">BACK TO STASH</button>`;
+ $("openMessage").textContent="Your pack stays in your stash until you click it.";
+ $("openingPanel").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function cancelPackSelection(){selectedPackEntry=null;selectedPackIndex=null;$("openingTitle").textContent="Ready to open a pack?";$("openingSubtitle").textContent="Choose a pack from your stash, then click the pack to open it.";$("openStage").innerHTML='<p class="notice">Choose an unopened pack from your stash above.</p>';$ ("openControls").innerHTML="";$("openMessage").textContent="After opening, click each card or use Reveal Next.";}
+async function tearOpenPack(){
+ if(openingPackBusy||!selectedPackEntry||selectedPackIndex===null)return;
+ openingPackBusy=true;
+ const at=state.packInventory.findIndex(x=>x.id===selectedPackEntry.id);if(at<0){alert("That pack is no longer in your stash.");cancelPackSelection();return;}
+ const pack=packs[selectedPackIndex];
+ currentPack=pack;
+ $("openMessage").textContent="Opening your booster and loading real Pokémon cards…";
+ try{
+  let cards=[];
+  if(pack.setId){
+   const setData=await getTcgSet(pack.setId);
+   const pool=Array.isArray(setData.cards)?setData.cards:[];
+   if(!pool.length)throw new Error("This set did not return a card list.");
+   const forcedSlot=state.guaranteedMythic?Math.floor(Math.random()*5):-1;
+   const chosen=Array.from({length:5},(_,i)=>{
+    const wanted=i===forcedSlot?"Mythic":weightedRarity(i);
+    const matching=pool.filter(card=>mapTcgRarity(card.rarity)===wanted);
+    const candidates=matching.length?matching:pool;
+    return candidates[Math.floor(Math.random()*candidates.length)];
+   });
+   cards=await Promise.all(chosen.map((brief,i)=>createTcgCard(brief,pack,i===forcedSlot)));
+  }else{
+   currentPack=pack;const guaranteedSlot=state.guaranteedMythic?Math.floor(Math.random()*5):-1;
+   cards=Array.from({length:5},(_,i)=>createCard(i===guaranteedSlot,i));
+  }
+  state.packInventory.splice(at,1);currentPack=pack;pendingCards=cards;openingPackBusy=false;
+  state.packsOpened++;state.xp+=15;revealIndex=0;selectedPackEntry=null;
+  $("openingTitle").textContent=currentPack.name+" opened!";
+  $("openingSubtitle").textContent="Five cards are inside. Click each card or use Reveal Next.";
+  $("openStage").innerHTML=pendingCards.map((c,i)=>`<div class="hidden-card" id="back${i}" onclick="revealCard(${i})"><span>?</span></div>`).join("");
+  $("openControls").innerHTML=`<button class="primary" onclick="revealNext()">REVEAL NEXT CARD</button>`;
+  $("openMessage").textContent="Reveal your five cards to see their values.";save();renderPackInventory();
+ }catch(err){
+  console.error(err);openingPackBusy=false;$("openMessage").textContent="Could not load this set right now. Your pack was not used — click the pack again in a moment.";
+ }
+}
+async function getTcgSet(setId){
+ if(tcgSetCache[setId])return tcgSetCache[setId];
+ const response=await fetch(`https://api.tcgdex.net/v2/en/sets/${encodeURIComponent(setId)}`);
+ if(!response.ok)throw new Error("Set lookup failed");
+ const data=await response.json();tcgSetCache[setId]=data;return data;
+}
+function mapTcgRarity(raw){
+ const r=String(raw||"").toLowerCase();
+ if(/secret|hyper|special illustration|black white rare|ultra rare|rainbow/.test(r))return "SECRET";
+ if(/illustration|amazing|shiny|gold|rainbow|radiant|rare holo v|rare holo vmax|rare holo vstar|rare prime|rare ace/.test(r))return "Mythic";
+ if(/rare holo|rare ultra|double rare|triple rare|ex|vmax|vstar|gx|break|prism star/.test(r))return "Legendary";
+ if(/rare/.test(r))return "Epic";
+ if(/uncommon/.test(r))return "Uncommon";
+ if(/common/.test(r))return "Common";
+ return "Rare";
+}
+const cardRarityBonus={Common:0.65,Uncommon:1.05,Rare:2.8,Epic:6,Legendary:12,Mythic:20,SECRET:100};
+async function createTcgCard(brief,pack,forceMythic=false){
+ let data=brief;
+ try{const res=await fetch(`https://api.tcgdex.net/v2/en/cards/${encodeURIComponent(brief.id)}`);if(res.ok)data=await res.json();}catch(e){}
+ let rarity=forceMythic?"Mythic":mapTcgRarity(data.rarity);
+ const imageBase=data.image||brief.image||"";
+ const localId=data.localId||brief.localId||String(brief.id||"").split("-").pop();
+ const pokemonTcgFallback=pack.setId&&localId?`https://images.pokemontcg.io/${pack.setId}/${localId}.png`:"";
+ const tcgdexImage=imageBase?( /\.(png|webp|jpg)(\?|$)/i.test(imageBase)?imageBase:imageBase.replace(/\/$/,"")+"/high.webp"):"";
+ const tcgdexPng=imageBase&&!/\.(png|webp|jpg)(\?|$)/i.test(imageBase)?imageBase.replace(/\/$/,"")+"/high.png":"";
+ // Prefer the illustrated card-front image. Try TCGdex WebP, then PNG, then the card-image mirror.
+ const finalImage=tcgdexImage||pokemonTcgFallback;
+ const imageFallback=tcgdexPng&&tcgdexPng!==finalImage?tcgdexPng:"";
+ const imageFallback2=pokemonTcgFallback&&pokemonTcgFallback!==finalImage?pokemonTcgFallback:"";
+ const value=estimateUngradedSingleValue(rarity,data.rarity||"");
+ const types=Array.isArray(data.types)?data.types.join(" / "):data.category||"Pokémon";
+ return {id:Date.now().toString(36)+Math.random().toString(36).slice(2),name:data.name||brief.name,emoji:"⚡",rarity,type:types,description:data.description||`${pack.setName||pack.name} · ${data.rarity||rarity}`,hp:Number(data.hp)||60,value,attack:Math.round((Number(data.hp)||60)*.7),image:finalImage,imageFallback,imageFallback2,favorite:false,setName:pack.setName||pack.name,cardNumber:localId,originalRarity:data.rarity||rarity};
+}
+async function loadTcgCatalogue(){
+ try{
+  const response=await fetch("https://api.tcgdex.net/v2/en/sets");if(!response.ok)throw new Error("Set catalogue unavailable");
+  const sets=await response.json();
+  tcgSets=sets.filter(x=>x&&x.id&&x.name);
+  const dynamic=tcgSets.map(set=>{
+   const year=Number(String(set.releaseDate||"2024").slice(0,4))||2024;
+   const count=Number(set.cardCount?.total||set.cardCount||100);
+   const n=set.name.toLowerCase();
+   // Canadian sealed single-booster market reference prices (CAD). These are
+   // named-set estimates based on current market trackers; unknown sets use
+   // a conservative era estimate and are clearly labelled as estimates.
+   const marketCAD={
+    "scarlet & violet":12.64,"obsidian flames":17.95,"crown zenith":18.50,
+    "evolving skies":55.00,"journey together":9.35,"prismatic evolutions":19.07,
+    "stellar crown":15.30,"shrouded fable":17.67,"twilight masquerade":13.12,
+    "temporal forces":14.92,"paldean fates":34.56,"151":38.29,
+    "paldea evolved":22.28,"black bolt":19.98,"surging sparks":19.98,
+    "paradox rift":12.55,"pokemon go":12.00,"brilliant stars":18.00,
+    "fusion strike":22.00,"lost origin":19.00,"silver tempest":15.00,
+    "astral radiance":14.00,"battle styles":13.00,"chilling reign":20.00,
+    "vivid voltage":17.00,"darkness ablaze":13.00,"rebel clash":18.00,
+    "sword & shield":14.00,"hidden fates":34.00,"shining legends":42.00,
+    "shining fates":12.00,"celebrations":16.00,"generations":35.00,
+    "team up":95.00,"unbroken bonds":45.00,"unified minds":55.00,
+    "cosmic eclipse":55.00,"ultra prism":45.00,"burning shadows":40.00,
+    "guardians rising":28.00,"sun & moon":24.00,"ancient origins":65.00,
+    "roaring skies":38.00,"primal clash":35.00,"phantom forces":65.00,
+    "plasma storm":190.00,"plasma freeze":160.00,"plasma blast":115.00,
+    "black & white":95.00,"boundaries crossed":85.00,"dragons exalted":115.00,
+    "call of legends":250.00,"triumphant":150.00,"undaunted":135.00,
+    "unleashed":115.00,"heartgold soulsilver":185.00,
+    "skyridge":2500.00,"aquapolis":1450.00,"expedition":650.00,
+    "legendary collection":1150.00,"neo destiny":1600.00,
+    "neo revelation":900.00,"neo genesis":650.00,"neo discovery":450.00,
+    "gym challenge":475.00,"gym heroes":400.00,"team rocket":460.00,
+    "fossil":475.00,"jungle":599.90,"base":941.61
+   };
+   let price=Object.entries(marketCAD).find(([key])=>n===key||n.includes(key))?.[1];
+   if(price===undefined){
+    const eraCAD=year>=2025?10.00:year>=2023?13.50:year>=2021?16.00:year>=2019?21.00:year>=2017?29.00:year>=2015?42.00:year>=2013?58.00:year>=2010?78.00:year>=2007?110.00:year>=2004?160.00:year>=2000?300.00:650.00;
+    price=eraCAD;
+   }
+   const basePrice=price;
+   price=scaledPackPrice(basePrice,set.id||set.name);
+   return {name:`${set.name} Booster`,setName:set.name,setId:set.id,series:set.serie?.name||set.serie||"Pokémon TCG",releaseDate:set.releaseDate||"",cardCount:count,basePrice,price,art:set.logo?(set.logo+".png"):"",desc:`${set.serie?.name||"Pokémon TCG"} · released ${year} · ${count} cards · randomized game price · CAD`,realSet:true};
+  });
+  const vintageFirstEditions=[
+   {name:"Base Set 1st Edition Booster",setId:"base1",price:9107.00},
+   {name:"Jungle 1st Edition Booster",setId:"base2",price:1102.70},
+   {name:"Fossil 1st Edition Booster",setId:"base3",price:850.00},
+   {name:"Team Rocket 1st Edition Booster",setId:"base5",price:1100.00},
+   {name:"Gym Heroes 1st Edition Booster",setId:"gym1",price:950.00},
+   {name:"Gym Challenge 1st Edition Booster",setId:"gym2",price:1150.00},
+   {name:"Neo Genesis 1st Edition Booster",setId:"neo1",price:1900.00},
+   {name:"Neo Discovery 1st Edition Booster",setId:"neo2",price:1100.00},
+   {name:"Neo Revelation 1st Edition Booster",setId:"neo3",price:1500.00},
+   {name:"Neo Destiny 1st Edition Booster",setId:"neo4",price:2800.00}
+  ].map(v=>{const set=tcgSets.find(x=>x.id===v.setId),basePrice=v.price;return {...v,basePrice,price:scaledPackPrice(basePrice,v.name),setName:set?.name||v.name.replace(" 1st Edition Booster",""),series:"Vintage · 1st Edition",art:set?.logo?(set.logo+".png"):"",desc:"Vintage 1st Edition · randomized game price · CAD",realSet:true,firstEdition:true};}).filter(v=>tcgSets.some(x=>x.id===v.setId));
+  const previousPacks=packs;
+  packs=[...dynamic,...vintageFirstEditions].sort((a,b)=>a.price-b.price||a.name.localeCompare(b.name));
+  remapPackInventory(previousPacks);tcgReady=true;
+  $("packCatalogStatus").textContent=`Loaded ${dynamic.length.toLocaleString()} sets plus vintage 1st Edition packs. Prices are randomly scaled game prices (not real-world market prices) and remain stable when you refresh. Search by set name.`;
+  renderPacks();
+ }catch(error){
+  console.error(error);tcgReady=false;
+  packs=legacyPacks.map(p=>({...p,basePrice:p.price,price:scaledPackPrice(p.price,p.name)})).sort((a,b)=>a.price-b.price);
+  $("packCatalogStatus").textContent="Set catalogue unavailable. Showing the backup packs with randomized game prices.";
+  renderPacks();
+ }
+}
+function weightedRarity(slot=0){
+ const weights=slot===4?hitSlotWeights:regularSlotWeights;
+ const total=weights.reduce((n,x)=>n+x.weight,0),r=Math.random()*total;let sum=0;
+ for(const item of weights){sum+=item.weight;if(r<sum)return item.name}
+ return slot===4?"Rare":"Common";
+}
+// Target average pack return in normal mode: 110% of the pack price.
+// Based on the current four regular slots plus one hit slot, the raw
+// expected value of the rarity ranges below is 1.682178× pack cost.
+// Scaling every card by this factor makes the theoretical mean 1.10×.
+const PACK_TARGET_RETURN=1.10;
+const RAW_PACK_EXPECTED_RETURN=1.682178;
+const PACK_VALUE_SCALE=PACK_TARGET_RETURN/RAW_PACK_EXPECTED_RETURN;
+function estimateUngradedSingleValue(rarity,raw=""){
+ // Card values scale with the fictional price of the pack. Random values
+ // still create wins and losses, while the long-run normal-mode average is
+ // about 1.10× the pack cost when cards are sold at their displayed value.
+ const packPrice=Math.max(1,Number(currentPack?.price)||20);
+ const ranges={
+  Common:[0.10,0.20],Uncommon:[0.18,0.35],Rare:[0.40,0.75],
+  Epic:[0.85,1.40],Legendary:[1.50,2.60],Mythic:[3.00,5.50],SECRET:[8.00,16.00]
+ };
+ const [low,high]=ranges[rarity]||ranges.Common;
+ return +(packPrice*(low+Math.random()*(high-low))*PACK_VALUE_SCALE).toFixed(2);
+}
+const rarityValueMultiplier={Common:0.65,Uncommon:1.05,Rare:2.8,Epic:6,Legendary:12,Mythic:20,SECRET:100};
+function createCard(forceMythic=false,slot=0){
+ const rarity=forceMythic?"Mythic":weightedRarity(slot);
+ const pool=monsters.filter(m=>m[2]===rarity);
+ const m=pool[Math.floor(Math.random()*pool.length)];
+ const value=estimateUngradedSingleValue(rarity,rarity);
+ return {id:Date.now().toString(36)+Math.random().toString(36).slice(2),name:m[0],emoji:m[1],rarity:m[2],type:m[3],description:m[4],hp:m[5],value,attack:Math.round(m[5]*.7),image:m[7]?`https://images.pokemontcg.io/${m[7]}.png`: "",favorite:false};
+}
+function revealCard(i){
+ const el=$("back"+i);if(!el||el.dataset.revealed)return;
+ el.dataset.revealed="1";
+ const c=pendingCards[i];
+ el.outerHTML=`<div class="reveal-card" id="revealed${i}">${cardHTML(c,false)}</div>`;
+ revealIndex++;
+ if(revealIndex===5)finishOpening();
+}
+function revealNext(){
+ const i=pendingCards.findIndex((c,index)=>$("back"+index)&&!$("back"+index).dataset.revealed);
+ if(i>=0)revealCard(i);
+}
+function finishOpening(){
+ const total=pendingCards.reduce((sum,c)=>sum+c.value,0),price=currentPack?currentPack.price:0,net=total-price;
+ $("openingSubtitle").textContent="All five cards revealed! Check the total pull value before deciding what to do.";
+ $("openControls").innerHTML=`<button class="green" onclick="collectOpened()">KEEP ALL CARDS</button><button class="danger" onclick="sellOpened()">💰 SELL ALL 5 CARDS</button>`;
+ $("openMessage").textContent=`Total card value: ${money(total)} · Pack cost: ${money(price)} · ${net>=0?"Profit":"Under cost"}: ${net>=0?"+":"−"}${money(Math.abs(net))}`;
+}
+function cardHTML(c,actions=true){
+ const image=c.image||"";
+ return `<div style="text-align:center;max-width:230px;margin:0 auto">
+ ${image?`<img src="${image}" data-fallback="${c.imageFallback||""}" data-fallback2="${c.imageFallback2||""}" alt="${c.name} Pokémon card" loading="eager" style="width:100%;height:auto;display:block;border-radius:12px;box-shadow:0 8px 25px #0009" onerror="if(this.dataset.fallback){const next=this.dataset.fallback;this.dataset.fallback='';this.src=next}else if(this.dataset.fallback2){const next=this.dataset.fallback2;this.dataset.fallback2='';this.src=next}else{this.outerHTML='<div style=\'font-size:90px;padding:65px 25px;background:#211936;border-radius:12px\'>${c.emoji}</div>'}">`:`<div style="font-size:90px;padding:65px 25px;background:#211936;border-radius:12px">${c.emoji}</div>`}
+ <div style="font-weight:900;margin-top:7px">${c.name} · ${c.rarity}</div>${c.setName?`<div style="font-size:11px;color:#b9a8ce;margin-top:2px">${c.setName}${c.originalRarity?` · ${c.originalRarity}`:""}</div>`:""}<div style="color:#ffd66b;font-weight:900;margin-top:4px">VALUE: ${money(c.value)}</div>
+ ${actions?`<div class="card-actions"><button class="sell" onclick="sellCard('${c.id}')">SELL</button><button onclick="toggleFavorite('${c.id}')">${c.favorite?"★ SAVED":"☆ SAVE"}</button></div>`:""}</div>`;
+}
+function collectOpened(){
+ state.cards.push(...pendingCards);pendingCards=[];save();
+ $("openControls").innerHTML=`<button class="primary" onclick="showPage('collection')">VIEW COLLECTION</button><button class="secondary" onclick="showPage('openpacks')">OPEN ANOTHER PACK</button>`;
+ $("openMessage").textContent="Cards added to your collection!";
+}
+function sellOpened(){
+ if(!pendingCards.length)return;
+ const total=pendingCards.reduce((a,c)=>a+c.value,0);
+ if(!state.infiniteMoney)state.balance+=total;
+ pendingCards=[];save();
+ $("openStage").innerHTML=`<div style="text-align:center"><div style="font-size:70px">💰</div><h2>CARDS SOLD!</h2><h2 style="color:var(--green)">+${money(total)}</h2></div>`;
+ $("openControls").innerHTML=`<button class="primary" onclick="showPage('openpacks')">OPEN ANOTHER PACK</button>`;
+ $("openMessage").textContent="All five cards have been sold.";
+}
+function renderCollection(){
+ const search=$("cardSearch").value.toLowerCase(),rarity=$("rarityFilter").value;
+ const list=state.cards.filter(c=>(rarity==="All"||c.rarity===rarity)&&c.name.toLowerCase().includes(search));
+ $("collectionGrid").innerHTML=list.length?list.map(c=>cardHTML(c)).join(""):`<p class="notice">No cards found. Open some packs to build your collection!</p>`;
+}
+function sellCard(id){
+ const i=state.cards.findIndex(c=>c.id===id);if(i<0)return;
+ const [c]=state.cards.splice(i,1);
+ if(!state.infiniteMoney)state.balance+=c.value;
+ save();renderCollection();
+}
+function toggleFavorite(id){
+ const c=state.cards.find(c=>c.id===id);if(!c)return;
+ c.favorite=!c.favorite;save();renderCollection();
+}
+function sellAll(){
+ const sell=state.cards.filter(c=>!c.favorite);
+ if(!sell.length){alert("No unfavorited cards to sell!");return}
+ const total=sell.reduce((a,c)=>a+c.value,0);
+ if(!confirm(`Sell ${sell.length} cards for ${money(total)}? Favourited cards will be kept.`))return;
+ state.cards=state.cards.filter(c=>c.favorite);
+ if(!state.infiniteMoney)state.balance+=total;
+ save();renderCollection();
+}
+function claimBonus(){
+ if(state.bonusClaimed){$("bonusMessage").textContent="You've already claimed your demo bonus.";return}
+ if(!state.infiniteMoney)state.balance+=2;
+ state.bonusClaimed=true;save();$("bonusMessage").textContent="+$2 bonus claimed!";
+}
+function unlockAdmin(){
+ const password=$("adminPassword").value;
+ if(password==="0214"){
+  state.infiniteMoney=true;
+  save();
+  $("adminStatus").textContent="✅ INFINITE MONEY UNLOCKED!";
+  $("adminPassword").value="";
+ }else if(password==="7632"){
+  state.guaranteedMythic=true;
+  save();
+  $("adminStatus").textContent="🐉 MYTHIC MODE ACTIVE — EVERY PACK GUARANTEES ONE MYTHIC!";
+  $("adminPassword").value="";
+ }else{
+  $("adminStatus").textContent="❌ Incorrect admin code.";
+ }
+}
+function betFrom(id){
+ const v=Math.floor(Number($(id).value));
+ if(!Number.isFinite(v)||v<1||(!state.infiniteMoney&&v>state.balance)){alert("Enter a valid bet within your balance.");return null}
+ if(!state.infiniteMoney)state.balance-=v;
+ save();return v;
+}
+function coinFlip(){
+ const b=betFrom("coinBet");if(b===null)return;
+ const result=Math.random()<.5?"Heads":"Tails",win=result===$("coinChoice").value;
+ if(win&&!state.infiniteMoney)state.balance+=b*1.9;
+ save();$("coinResult").textContent=`${result}! ${win?"You won "+money(b*.9)+" profit!":"You lost "+money(b)+"."}`;
+}
+function diceRoll(){
+ const b=betFrom("diceBet");if(b===null)return;
+ const n=1+Math.floor(Math.random()*6),win=n===6;
+ if(win&&!state.infiniteMoney)state.balance+=b*5;
+ save();$("diceResult").textContent=`You rolled ${n}. ${win?"JACKPOT! You won "+money(b*5)+"!":"Better luck next time!"}`;
+}
+function luckyRoll(){
+ const b=betFrom("luckyBet");if(b===null)return;
+ const chosen=Math.floor(Number($("luckyNumber").value));
+ if(chosen<1||chosen>10||!Number.isInteger(chosen)){
+  if(!state.infiniteMoney)state.balance+=b;save();alert("Choose a number from 1 to 10.");return;
+ }
+ const n=1+Math.floor(Math.random()*10),win=n===chosen;
+ if(win&&!state.infiniteMoney)state.balance+=b*8;
+ save();$("luckyResult").textContent=`Number ${n}! ${win?"You won "+money(b*8)+"!":"Not this time."}`;
+}
+function resetGame(){
+ if(!confirm("Reset your balance and collection? This cannot be undone."))return;
+ localStorage.removeItem("monsterJackpotV4");localStorage.removeItem("monsterJackpotV3");
+ state={balance:2000,cards:[],packsOpened:0,xp:0,bonusClaimed:false,infiniteMoney:false,guaranteedMythic:false,packInventory:[]};
+ pendingCards=[];revealIndex=0;currentPack=null;selectedPackEntry=null;selectedPackIndex=null;openingPackBusy=false;save();renderCollection();renderPackInventory();cancelPackSelection();showPage("home");
+}
+
+/* PLINKO — original board drawing and bouncing physics retained.
+   Only the payout multipliers have been changed. */
+const canvas=$("plinkoCanvas"),ctx=canvas.getContext("2d");
+let pegs=[],balls=[];
+const riskMultipliers={
+ low:[3,1.5,1.1,.9,.8,.9,1.1,1.5,3],
+ medium:[10,3,1.5,.7,.2,.7,1.5,3,10],
+ high:[20,5,1.5,.3,.05,.3,1.5,5,20]
+};
+function boardGeometry(){
+ const rows=Number($("plinkoRows").value),left=65,right=655,top=65,bottom=495;
+ const dx=(right-left)/(rows+1),dy=(bottom-top)/(rows+1);
+ return {rows,left,right,top,bottom,dx,dy};
+}
+function buildPlinko(){
+ const g=boardGeometry();pegs=[];
+ for(let r=0;r<g.rows;r++){
+  const count=r+3,spacing=(g.right-g.left)/(g.rows+2);
+  const rowWidth=(count-1)*spacing;
+  const start=(canvas.width-rowWidth)/2;
+  for(let c=0;c<count;c++)pegs.push({x:start+c*spacing,y:g.top+r*g.dy});
+ }
+ updatePlinkoLabels();drawPlinko();
+}
+function updatePlinkoLabels(){
+ const mult=riskMultipliers[$("plinkoRisk").value];
+ $("slotLabels").innerHTML=mult.map(m=>`<span>${m}×</span>`).join("");
+}
+function drawPlinko(){
+ if(!ctx)return;
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ const g=boardGeometry();
+ ctx.strokeStyle="#7c54aa";ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(45,35);ctx.lineTo(45,520);ctx.moveTo(675,35);ctx.lineTo(675,520);ctx.stroke();
+ pegs.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,5,0,Math.PI*2);ctx.fillStyle="#d8b9ff";ctx.shadowColor="#a75cff";ctx.shadowBlur=8;ctx.fill();ctx.shadowBlur=0});
+ const binW=590/9;
+ for(let i=0;i<=9;i++){ctx.fillStyle="#9870c4";ctx.fillRect(65+i*binW,520,2,58)}
+ const mult=riskMultipliers[$("plinkoRisk").value];
+ mult.forEach((m,i)=>{ctx.fillStyle=m>=8?"#ffb84d":m>=2?"#62e7a6":"#d8c9ed";ctx.font="bold 15px Arial";ctx.textAlign="center";ctx.fillText(m+"×",65+(i+.5)*binW,552)});
+ balls.forEach(b=>{ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fillStyle="#ffd66b";ctx.shadowColor="#ffad36";ctx.shadowBlur=12;ctx.fill();ctx.shadowBlur=0});
+}
+function dropBall(){
+ if(plinkoBusy)return;
+ const bet=Math.floor(Number($("plinkoBet").value));
+ if(!Number.isFinite(bet)||bet<1||(!state.infiniteMoney&&bet>state.balance)){alert("Enter a valid bet within your balance.");return}
+ if(!state.infiniteMoney)state.balance-=bet;
+ save();
+ plinkoBusy=true;$("dropButton").disabled=true;
+ const ball={x:360+(Math.random()-.5)*12,y:25,vx:(Math.random()-.5)*1.5,vy:0,r:8,bet,done:false};
+ balls.push(ball);
+ let last=performance.now();
+ function animate(now){
+  const dt=Math.min((now-last)/16.67,1.5);last=now;
+  const g=boardGeometry();
+  ball.vy+=.19*dt;ball.x+=ball.vx*dt;ball.y+=ball.vy*dt;
+  if(ball.x<55+ball.r){ball.x=55+ball.r;ball.vx=Math.abs(ball.vx)*.72}
+  if(ball.x>665-ball.r){ball.x=665-ball.r;ball.vx=-Math.abs(ball.vx)*.72}
+  for(const p of pegs){
+   const dx=ball.x-p.x,dy=ball.y-p.y,dist=Math.hypot(dx,dy),min=ball.r+5;
+   if(dist<min && dist>0){
+    const nx=dx/dist,ny=dy/dist;
+    ball.x=p.x+nx*min;ball.y=p.y+ny*min;
+    const dot=ball.vx*nx+ball.vy*ny;
+    if(dot<0){ball.vx-=1.55*dot*nx;ball.vy-=1.55*dot*ny}
+    ball.vx+=((Math.random()-.5)*.65);
+   }
+  }
+  ball.vx*=.998;ball.vy=Math.min(ball.vy,8);
+  drawPlinko();
+  if(ball.y>=510){
+   const binW=590/9,index=Math.max(0,Math.min(8,Math.floor((ball.x-65)/binW)));
+   const mult=riskMultipliers[$("plinkoRisk").value][index];
+   const payout=Math.floor(bet*mult);
+   if(!state.infiniteMoney)state.balance+=payout;
+   save();
+   $("lastMultiplier").textContent=mult+"×";$("lastPayout").textContent=money(payout);
+   $("plinkoResult").textContent=`Landed in ${mult}× — payout ${money(payout)}!`;
+   const h=document.createElement("span");h.textContent=mult+"× · "+money(payout);$("plinkoHistory").prepend(h);
+   if($("plinkoHistory").children.length>8)$("plinkoHistory").lastChild.remove();
+   ball.done=true;balls=balls.filter(x=>!x.done);plinkoBusy=false;$("dropButton").disabled=false;drawPlinko();return;
+  }
+  requestAnimationFrame(animate);
+ }
+ requestAnimationFrame(animate);
+}
+
+renderPacks();
+loadTcgCatalogue();
+buildPlinko();
+updateUI();
+</script>
+</body>
+</html>
